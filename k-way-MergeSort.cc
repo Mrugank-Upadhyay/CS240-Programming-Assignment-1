@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
-#include <cmath.h>
+#include <math.h>
 using namespace std;
 
 void print(std::vector<int> const &a)
@@ -17,7 +17,7 @@ void print(std::vector<int> const &a)
 vector<vector<int>> split(const vector<int> &A, int k)
 {
     int len = A.size();
-    int s = int(std::ceil(len / k));
+    int s = int(std::ceil(double(len) / double(k)));
     vector<vector<int>> T;
     for (int i = 0; i < len;)
     {
@@ -47,6 +47,16 @@ vector<vector<int>> split(const vector<int> &A, int k)
     return T;
 }
 
+int ArgMin(vector<pair<vector<int>, int>> &M)
+{
+    int min = 0;
+    int len = M.size();
+    for (int i = 0; i < len; i++)
+    {
+        if (M[i].first <)
+    }
+}
+
 //-------------------------------------------------//
 // k-way merge implemented as in the assignment    //
 // if all Aj's are sorted, the output must be      //
@@ -54,6 +64,37 @@ vector<vector<int>> split(const vector<int> &A, int k)
 //-------------------------------------------------//
 vector<int> kWayMerge(const vector<vector<int>> &Aj)
 {
+    int k = Aj.size();
+    vector<int> I = vector<int>(k, 0);
+    // Holds the lengths of each sub array
+    vector<int> N;
+    // combined size of all sub arrays: n = n1 + ... + nk
+    int n = 0;
+    for (auto subArray : Aj)
+    {
+        int size = subArray.size();
+        n += size;
+        N.push_back(size);
+    }
+    // Array of length n
+    vector<vector<int>> A = vector<vector<int>>(n);
+
+    for (int i = 0; i < n; i++)
+    {
+        vector<pair<vector<int>, int>> M;
+        for (int j = 0; j < k; j++)
+        {
+            if (I[j] != N[j])
+            {
+                M.push_back(pair<vector<int>, int>(Aj[I[j]], j));
+            }
+        }
+
+        int l = ArgMin(M);
+        int j = M[l].second;
+        A[i] = Aj[I[j]];
+        I[j]++;
+    }
 }
 
 void kWayMergeSort(vector<int> &A, int k)
@@ -64,6 +105,7 @@ void kWayMergeSort(vector<int> &A, int k)
         return;
     }
 
+    // We first split our main array into k parts
     auto T = split(A, k);
     for (auto subArray : T)
     {
