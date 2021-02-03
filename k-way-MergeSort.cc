@@ -14,47 +14,49 @@ void print(std::vector<int> const &a)
     cout << endl;
 }
 
+// Split function to split the array A as evenly as possible
 vector<vector<int>> split(const vector<int> &A, int k)
 {
-    int len = A.size();
-    int s = int(std::ceil(double(len) / double(k)));
+    // Vector to output the list of subarrays
     vector<vector<int>> T;
-    for (int i = 0; i < len;)
-    {
-        if (i + s >= len)
-        {
-            vector<int> SubArray;
-            for (int j = i; j < len; j++)
-            {
-                SubArray[j - i] = A[j];
-            }
-            T.push_back(SubArray);
+    int n = A.size();
+    int q = n / k;
+    int r = n % k;
+    int idx = 0;
+    // Loop through the first A0 to A_r-1 arrays to be of size q+1
+    for (int i = 0; i < r; i++) {
+        vector<int> Ai = vector<int>(q + 1, 0);
+        for (int j = 0; j <= q; j++) {
+            Ai[j] = A[idx];
+            idx++;
         }
-
-        else
-        {
-            vector<int> SubArray;
-            for (int j = i; j < i + s - 1; j++)
-            {
-                SubArray[j - i] = A[j];
-            }
-            T.push_back(SubArray);
-        }
-
-        i += s;
+        T.push_back(Ai);
     }
 
+    // Loop through the remaining to be of size q
+    for (int i = r; i < k; i++) {
+        vector<int> Ai = vector<int>(q, 0);
+        for (int j = 0; j < q; j++) {
+            Ai[j] = A[idx];
+            idx++;
+        }
+        T.push_back(Ai);
+    }
     return T;
 }
 
-int ArgMin(vector<pair<vector<int>, int>> &M)
+int ArgMin(vector<pair<int, int>> &M)
 {
-    int min = 0;
+    int l = 0;
     int len = M.size();
     for (int i = 0; i < len; i++)
     {
-        if (M[i].first <)
+        if (M[i].first < M[l].first) {
+            l = i;
+        }
     }
+
+    return l;
 }
 
 //-------------------------------------------------//
@@ -70,49 +72,52 @@ vector<int> kWayMerge(const vector<vector<int>> &Aj)
     vector<int> N;
     // combined size of all sub arrays: n = n1 + ... + nk
     int n = 0;
-    for (auto subArray : Aj)
+    for (int i = 0; i < k; i++)
     {
-        int size = subArray.size();
+        int size = Aj[i].size();
         n += size;
         N.push_back(size);
     }
     // Array of length n
-    vector<vector<int>> A = vector<vector<int>>(n);
+    vector<int> A = vector<int>(n);
 
     for (int i = 0; i < n; i++)
     {
-        vector<pair<vector<int>, int>> M;
+        vector<pair<int, int>> M;
         for (int j = 0; j < k; j++)
         {
-            if (I[j] != N[j])
+            if (I[j] < N[j])
             {
-                M.push_back(pair<vector<int>, int>(Aj[I[j]], j));
+                M.push_back(pair<int, int>(Aj[j][I[j]], j));
             }
         }
 
         int l = ArgMin(M);
         int j = M[l].second;
-        A[i] = Aj[I[j]];
-        I[j]++;
+        A[i] = Aj[j][I[j]];
+        I[j] = I[j] + 1;
     }
+
+    return A;
 }
 
 void kWayMergeSort(vector<int> &A, int k)
 {
     int len = A.size();
-    if (len == 1)
+    if (len <= 1)
     {
         return;
     }
 
     // We first split our main array into k parts
     auto T = split(A, k);
-    for (auto subArray : T)
+    len = T.size();
+    for (int i = 0; i < len; i++)
     {
-        kWayMergeSort(subArray, k);
+        kWayMergeSort(T[i], k);
     }
 
-    kWayMerge(T);
+    A = kWayMerge(T);
 }
 
 #ifndef TESTING
